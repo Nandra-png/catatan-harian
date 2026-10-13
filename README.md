@@ -1,15 +1,15 @@
 # catatan-harian
 
-api catatan pribadi, daftar akun, login, crud catatan. cuma bisa akses catatan sendiri
+Personal notes API. Register, login, CRUD notes. Scoped to the owner.
 
 ```
 npm install
 npm start
 ```
 
-port 3000
+Port 3000.
 
-## endpoint
+## Endpoints
 
 ```
 POST   /daftar              { username, password }
@@ -22,19 +22,19 @@ PUT    /catatan/:id         { judul, isi }
 DELETE /catatan/:id
 ```
 
-semua kecuali `/daftar` sama `/masuk` butuh header `Authorization: Bearer <token>`
+Everything except `/daftar` and `/masuk` needs `Authorization: Bearer <token>`.
 
-## teknis
+## How it works
 
-password di-hash pake bcrypt, token pake jwt expired 1 hari
+Passwords hashed with bcrypt. JWT expires in 1 day.
 
-tiap edit sama hapus, dicek dulu userId catatannya sama userId yang login, kalo beda dibalikin 404 bukan 403, biar gak keliatan catatannya ada apa gak
+Every edit and delete checks the note's `userId` against the logged-in user. Mismatch returns 404, not 403, so you can't tell whether the note exists.
 
-query pake `?` bukan concat string
+Queries use `?` placeholders, no string concatenation.
 
-data disimpen di file json folder `data/`
+Data is stored as JSON files under `data/`.
 
-## tes
+## Test
 
 ```bash
 curl -X POST http://localhost:3000/daftar -H "Content-Type: application/json" -d "{\"username\":\"budi\",\"password\":\"rahasia123\"}"
@@ -44,12 +44,12 @@ curl -X POST http://localhost:3000/daftar -H "Content-Type: application/json" -d
 curl -X POST http://localhost:3000/catatan -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d "{\"judul\":\"belanja\",\"isi\":\"indomie\"}"
 ```
 
-login akun lain terus coba akses `/catatan/1` punya budi, hasilnya 404
+Log in as a different account and hit `/catatan/1` owned by budi. Returns 404.
 
-## todo
+## Todo
 
-- belum ada tampilan web, api doang
-- data di json, kalo rame bakal lambat
-- belum ada reset password
-- belum ada limit login
-- belum ada refresh token
+- API only, no web UI
+- JSON files, will not hold up under load
+- no password reset
+- no login rate limit
+- no refresh tokens
