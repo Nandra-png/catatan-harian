@@ -1,0 +1,29 @@
+{
+  "name": "catatan-harian",
+  "version": "1.0.0",
+  "description": "API catatan harian pribadi: daftar, login, dan CRUD catatan",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test/api.test.js"
+  },
+  "keywords": [
+    "notes",
+    "catatan",
+    "api",
+    "express",
+    "jwt"
+  ],
+  "author": "rujak",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
