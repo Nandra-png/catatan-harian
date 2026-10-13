@@ -1,91 +1,55 @@
 # catatan-harian
 
-ini projek saya yang kedua setelah yang shortlink, saya bikin api catatan pribadi, jadi bisa daftar akun terus nyimpen catatan sendiri, awalnya sih cuma pengen bisa nulis catatan yang bisa diakses dari mana aja, soalnya kalo di notes hp gampang ilang
-
-terus saya bikin versi apinya dulu, nanti kalo sempet baru bikin tampilannya
-
-## isinya apa
-
-pake express sama sqlite, terus ada login pake token
-
-simpennya json biasa di folder data sih sebenernya, hehe saya belum pake database beneran soalnya belom paham
-
-eh iya passwordnya saya hash dulu pake bcrypt, soalnya kata dosen saya jangan pernah nyimpen password apa adanya, jadi walaupun ini cuma buat belajar saya benerin dari awal
-
-## cara jalanin
+Personal notes API. Register, login, CRUD notes. Scoped to the owner.
 
 ```
 npm install
-```
-
-terus
-
-```
 npm start
 ```
 
-jalan di port 3000
+Port 3000.
 
-## endpointnya
-
-daftar dulu
+## Endpoints
 
 ```
+POST   /daftar              { username, password }
+POST   /masuk               { username, password }
+GET    /aku
+GET    /catatan
+GET    /catatan/:id
+POST   /catatan             { judul, isi }
+PUT    /catatan/:id         { judul, isi }
+DELETE /catatan/:id
+```
+
+Everything except `/daftar` and `/masuk` needs `Authorization: Bearer <token>`.
+
+## How it works
+
+Passwords hashed with bcrypt. JWT expires in 1 day.
+
+Every edit and delete checks the note's `userId` against the logged-in user. Mismatch returns 404, not 403, so you can't tell whether the note exists.
+
+Queries use `?` placeholders, no string concatenation.
+
+Data is stored as JSON files under `data/`.
+
+## Test
+
+```bash
 curl -X POST http://localhost:3000/daftar -H "Content-Type: application/json" -d "{\"username\":\"budi\",\"password\":\"rahasia123\"}"
 ```
 
-masuk
-
-```
-curl -X POST http://localhost:3000/masuk -H "Content-Type: application/json" -d "{\"username\":\"budi\",\"password\":\"rahasia123\"}"
+```bash
+curl -X POST http://localhost:3000/catatan -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d "{\"judul\":\"belanja\",\"isi\":\"indomie\"}"
 ```
 
-nanti dikasih token, simpen, terus dipake buat endpoint yang lain
+Log in as a different account and hit `/catatan/1` owned by budi. Returns 404.
 
-bikin catatan
+## Todo
 
-```
-curl -X POST http://localhost:3000/catatan -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d "{\"judul\":\"belanja\",\"isi\":\"beli indomie\"}"
-```
-
-liat semua catatan
-
-```
-curl http://localhost:3000/catatan -H "Authorization: Bearer <token>"
-```
-
-edit
-
-```
-curl -X PUT http://localhost:3000/catatan/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d "{\"judul\":\"belanja\",\"isi\":\"beli indomie sama telur\"}"
-```
-
-hapus
-
-```
-curl -X DELETE http://localhost:3000/catatan/1 -H "Authorization: Bearer <token>"
-```
-
-## yang saya perhatiin
-
-katanya catatan cuma boleh diliat sama yang punya, jadi tiap kali ada yang mau edit atau hapus saya cek dulu ini catatan punya dia apa bukan, saya sempet lupa bikin ini di awal terus sadar kalo gak dicek orang bisa hapus catatan orang lain cuma dengan ganti angkanya aja
-
-terus soal password tadi, saya hash pake bcrypt, jadi walaupun ada yang bisa liat filenya dia gak bisa tau password aslinya
-
-querynya saya pake tanda tanya, bukan digabung gitu, kata dosen saya biar gak bisa diisi apa apa
-
-## yang belum saya kerjain
-
-- belum ada tampilan webnya, cuma api doang
-- datanya masih di file json, jadi kalo rame kayaknya bakal lambat
-- belum ada reset password
-- belum ada batas berapa kali boleh login, jadi orang bisa coba coba terus
-- token kalo expired harus login lagi, belom ada refresh
-
-## yang saya pelajarin
-
-yang paling saya inget itu pas saya lupa cek pemilik catatan, saya baru sadar pas iseng nyoba ganti angka di urlnya terus ternyata bisa liat catatan orang lain, dari situ saya ngerti kenapa hal yang keliatan sepele bisa jadi masalah
-
-terus saya juga baru ngerti kenapa password gak boleh disimpen apa adanya, walaupun keliatannya cuma file di laptop sendiri
-
-masih belajar, mohon dikoreksi kalo ada yang salah
+- API only, no web UI
+- JSON files, will not hold up under load
+- no password reset
+- no login rate limit
+- no refresh tokens
